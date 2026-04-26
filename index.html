@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CONFESS AI</title>
+    <style>
+        body { background-color: #000; color: #ccc; font-family: monospace; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        
+        /* ADDED: Title Style */
+        h1 { 
+            font-family: "Times New Roman", Times, serif; 
+            letter-spacing: 5px; 
+            font-weight: normal;
+            text-transform: uppercase;
+        }
+
+        textarea { width: 500px; height: 150px; background: #111; border: 1px solid #333; color: #fff; padding: 20px; font-family: monospace; }
+        button { margin-top: 20px; background: #111; border: 1px solid #444; color: #888; padding: 10px 30px; cursor: pointer; text-transform: uppercase; }
+        button:hover { color: #fff; border-color: #fff; }
+        #output { margin-top: 30px; max-width: 500px; text-align: left; border-left: 2px solid #333; padding-left: 20px; display: none; }
+    </style>
+</head>
+<body>
+    <!-- This uses the new Times New Roman style -->
+    <h1>CONFESS AI</h1>
+    
+    <textarea id="confessionInput" placeholder="Tell me everything..."></textarea>
+    <br>
+    <button onclick="submitConfession()">Submit</button>
+           <div id="output" style="display:none;">
+            <!-- The Clinical Result -->
+            <div id="report-text"></div>
+            
+            <!-- The Cycling Terminal Messages -->
+            <div id="terminal-msg"></div>
+        </div>
+    
+    <!-- (Your script goes here) -->
+</body>
+
+    <script>
+                     async function submitConfession() {
+            const input = document.getElementById('confessionInput').value;
+            const outputDiv = document.getElementById('output');
+            const reportText = document.getElementById('report-text');
+            const terminalMsg = document.getElementById('terminal-msg');
+            
+            // --- 1. VALIDATION (Word Count) ---
+            const wordCount = input.trim().split(/\s+/).length;
+            if (wordCount > 300) {
+                alert("The confession is too verbose. The Organization limits confessions to 300 words. Be concise.");
+                return;
+            }
+
+            if (!input) return;
+
+            // Clear the input box immediately
+            document.getElementById('confessionInput').value = '';
+
+            outputDiv.style.display = 'block';
+            reportText.innerText = "Processing...";
+            terminalMsg.innerText = "";
+
+            try {
+                const response = await fetch('http://127.0.0.1:8001/audit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ confession: input })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    reportText.innerText = "System Error: " + data.error;
+                    reportText.style.color = "red";
+                } else {
+                    // Display the Incident Report (Static)
+                    reportText.innerText = data.incident_report;
+                    
+                    // Start the Terminal Cycle
+                    runTerminalSequence(terminalMsg);
+                }
+
+            } catch (error) {
+                reportText.innerText = "Connection Failed: " + error;
+            }
+        }
+
+        // --- 2. TERMINAL SEQUENCE LOGIC ---
+        async function runTerminalSequence(element) {
+            const messages = [
+                "The organization has received your confession.",
+                "Confession acknowledged and voided.",
+                "Confession is life."
+            ];
+
+            // Helper to pause execution (like 'sleep')
+            const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+            // Set transition style for smooth fading
+            element.style.transition = "opacity 1s ease-in-out";
+            element.style.marginTop = "20px";
+            element.style.fontStyle = "italic";
+            element.style.color = "#888";
+
+            for (let i = 0; i < messages.length; i++) {
+                // If it's not the first message, fade out first
+                if (i > 0) {
+                    element.style.opacity = 0;
+                    await wait(1000); // Wait for fade out
+                }
+
+                // Update text
+                element.innerText = messages[i];
+
+                // Fade in
+                element.style.opacity = 1;
+                
+                // How long to stay visible (2 seconds per message)
+                await wait(2500);
+            }
+            
+            // The loop finishes. The last message ("Confession is life.") 
+            // remains visible on the screen.
+        }
+    </script>
+</body>
+</html>
