@@ -85,3 +85,21 @@ async def audit_endpoint(request: AuditRequest):
         }
     except Exception as e:
         return {"error": str(e)}
+        
+        # --- ADMIN ENDPOINT ---
+
+@app.get("/admin/sync")
+async def admin_sync():
+    """
+    Returns all confessions in the database.
+    Used for verifying data and future training export.
+    """
+    try:
+        # Retrieve all documents (limit set high to get everything)
+        results = collection.get(
+            limit=1000, 
+            include=["documents", "metadatas"]
+        )
+        return results
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
