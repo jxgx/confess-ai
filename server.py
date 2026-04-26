@@ -17,7 +17,7 @@ openai_ef = embedding_functions.OpenAIEmbeddingFunction(
     api_key=os.getenv("OPENAI_API_KEY"),
     model_name="text-embedding-3-small"
 )
-client_chroma = chromadb.PersistentClient(path="chroma_db")
+client_chroma = chromadb.PersistentClient(path="/data/chroma_db")
 collection = client_chroma.get_or_create_collection(
     name="confessional_canon", 
     embedding_function=openai_ef
