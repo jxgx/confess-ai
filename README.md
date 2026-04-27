@@ -1,0 +1,1 @@
+Confess AI is a full-stack Data Harvesting application designed to collect and sanitize user input for training data generation. The project implements a "Kenosis Engine" architecture, utilizing a specialized "Auditor" prompt to transform raw, subjective human confessions into anonymized, third-person clinical narratives.
